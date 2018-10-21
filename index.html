@@ -1,0 +1,79 @@
+<html>
+	<head>
+		<title>Hugo_js</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta name="viewport" content="width=480">
+	</head>
+	<body style="margin: 0px auto; text-align: center; padding: 0px 0px; width: 480px; background: #e5e5e5;">
+		<div align="center" style="background-color: #fff; padding-top: 10px; padding-bottom: 10px; width: 480px; text-align: center;">
+			<div align="center">
+				<canvas class="emscripten" id="canvas" width="320" height="200" oncontextmenu="event.preventDefault()"></canvas>
+			</div>
+		</div>
+                <div style="background-color: #eeeeee; margin: 20px 0px 0px 0px; padding: 8px;">
+                        <strong>hugo.js</strong> test code
+                </div>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-100340326-2"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'UA-100340326-2');
+		</script>
+		<script type="text/javascript">
+			var Module = {
+				'print' : function( text ) {
+					console.log( text )
+				},
+				'setStatus' : function( status ) {
+					console.log( 'status=' + status )
+				},
+				'onRuntimeInitialized' : function( ) {
+					var MAP_NUMBER = 0
+					var ticks = 0;
+					function train_tick() {
+						if (ticks == 0) {
+							Module['_train_init']( MAP_NUMBER );
+						}
+						Module['_train_update']( );
+						ticks += 1;
+					}
+					var t = setInterval( train_tick, 50 );
+					// clearInterval( t )
+				}
+			}
+			var keyboard_left_pressed = false;
+			var keyboard_right_pressed = false;
+			var keyboard_f1_pressed = false;
+			function key_pressed( ev ) {
+				if ( ev.code == 'ArrowLeft' || ev.code == 'Digit4' ) {
+					keyboard_left_pressed = true;
+				} else if ( ev.code == 'ArrowRight' || ev.code == 'Digit6' ) {
+					keyboard_right_pressed = true;
+				} else if ( ev.code == 'KeyV' || ev.code == 'KeyE' ) {
+					keyboard_f1_pressed = true;
+				}
+			}
+			window.addEventListener( 'keydown', key_pressed );
+			function mouse_pressed( ev ) {
+				var canvas = document.getElementById( 'canvas' );
+				var bbox = canvas.getBoundingClientRect( );
+				var x = ev.clientX - bbox.left;
+				var y = ev.clientY - bbox.top;
+				var margin = 32;
+				var w = 32;
+				var h = 23;
+				if ( y >= 45 - margin && y <= 45 + h + margin ) {
+					if ( x >= 96 - margin && x <= 96 + w ) {
+						keyboard_left_pressed = true;
+					}
+					if ( x >= 128 && x <= 128 + w + margin ) {
+						keyboard_right_pressed = true;
+					}
+				}
+			}
+			window.addEventListener( 'mousedown', mouse_pressed );
+		</script>
+		<script async type="text/javascript" src="hugo.min.js"></script>
+	</body>
+</html>
