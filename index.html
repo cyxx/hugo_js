@@ -5,22 +5,65 @@
 		<meta name="viewport" content="width=480">
 	</head>
 	<body style="margin: 0px auto; text-align: center; padding: 0px 0px; width: 480px; background: #e5e5e5;">
-		<div align="center" style="background-color: #fff; padding-top: 10px; padding-bottom: 10px; width: 480px; text-align: center;">
+		<div align="center" style="background-color: #fff; padding-top: 5px; padding-bottom: 5px; width: 480px; text-align: center;">
 			<div align="center">
 				<canvas class="emscripten" id="canvas" width="320" height="200" oncontextmenu="event.preventDefault()"></canvas>
 			</div>
+			<div align="center">
+				<input type="button" value="Pause" onclick="onPlayPressed()" id="playButton" />
+				<select onchange="onPaletteChange()" id="paletteSelect">
+					<option>VGA</option>
+					<option>EGA</option>
+				</select>
+			</div>
 		</div>
-                <div style="background-color: #eeeeee; margin: 20px 0px 0px 0px; padding: 8px;">
-                        <strong>hugo.js</strong> test code
+                <div style="background-color: #eeeeee; padding: 8px;">
+                        <strong>hugo.min.js</strong> test code
                 </div>
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-100340326-2"></script>
 		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
-			gtag('config', 'UA-100340326-2');
+			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+			ga('create','UA-100340326-2','auto');
+			ga('send','pageview');
 		</script>
+		<script async src='https://www.google-analytics.com/analytics.js'></script>
 		<script type="text/javascript">
+			var MAP_NUMBER = 0
+			var playing = false;
+			var gameTimer;
+			var gameTicks = 0;
+			function doGameTick() {
+				if (gameTicks == 0) {
+					Module['_train_init']( MAP_NUMBER );
+				}
+				Module['_train_update']( );
+				gameTicks += 1;
+			}
+			function resumeGame( ) {
+				gameTicks = 0;
+				gameTimer = setInterval( doGameTick, 50 );
+				playing = true;
+				playButton.value = 'Pause';
+			}
+			function pauseGame( ) {
+				clearInterval( gameTimer );
+				playing = false;
+				playButton.value = 'Play';
+			}
+			function onPlayPressed() {
+				if ( playing ) {
+					pauseGame( );
+				} else {
+					resumeGame( );
+				}
+			}
+			var paletteIndex = 0;
+			function onPaletteChange() {
+				var palette = paletteSelect.selectedIndex;
+				if (palette != paletteIndex) {
+					paletteIndex = palette;
+					keyboard_f1_pressed = true;
+				}
+			}
 			var Module = {
 				'print' : function( text ) {
 					console.log( text )
@@ -29,23 +72,13 @@
 					console.log( 'status=' + status )
 				},
 				'onRuntimeInitialized' : function( ) {
-					var MAP_NUMBER = 0
-					var ticks = 0;
-					function train_tick() {
-						if (ticks == 0) {
-							Module['_train_init']( MAP_NUMBER );
-						}
-						Module['_train_update']( );
-						ticks += 1;
-					}
-					var t = setInterval( train_tick, 50 );
-					// clearInterval( t )
+					resumeGame( );
 				}
 			}
 			var keyboard_left_pressed = false;
 			var keyboard_right_pressed = false;
 			var keyboard_f1_pressed = false;
-			function key_pressed( ev ) {
+			function onKeyDown( ev ) {
 				if ( ev.code == 'ArrowLeft' || ev.code == 'Digit4' ) {
 					keyboard_left_pressed = true;
 				} else if ( ev.code == 'ArrowRight' || ev.code == 'Digit6' ) {
@@ -54,13 +87,13 @@
 					keyboard_f1_pressed = true;
 				}
 			}
-			window.addEventListener( 'keydown', key_pressed );
-			function mouse_pressed( ev ) {
+			window.addEventListener( 'keydown', onKeyDown );
+			function onMouseDown( ev ) {
 				var canvas = document.getElementById( 'canvas' );
 				var bbox = canvas.getBoundingClientRect( );
 				var x = ev.clientX - bbox.left;
 				var y = ev.clientY - bbox.top;
-				var margin = 32;
+				var margin = 96;
 				var w = 32;
 				var h = 23;
 				if ( y >= 45 - margin && y <= 45 + h + margin ) {
@@ -72,7 +105,7 @@
 					}
 				}
 			}
-			window.addEventListener( 'mousedown', mouse_pressed );
+			window.addEventListener( 'mousedown', onMouseDown );
 		</script>
 		<script async type="text/javascript" src="hugo.min.js"></script>
 	</body>
