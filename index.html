@@ -4,11 +4,13 @@
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta name="viewport" content="width=480">
 	</head>
-	<body style="margin: 0px auto; text-align: center; padding: 0px 0px; width: 480px; background: #e5e5e5;">
+	<body style="margin: 0px auto; text-align: center; padding: 8px 8px; width: 480px; background: #e5e5e5;">
 		<div align="center" style="background-color: #fff; padding-top: 5px; padding-bottom: 5px; width: 480px; text-align: center;">
 			<div align="center">
 				<canvas class="emscripten" id="canvas" width="320" height="200" oncontextmenu="event.preventDefault()"></canvas>
 			</div>
+		</div>
+                <div style="background-color: #eeeeee; padding: 8px;" >
 			<div align="center">
 				<input type="button" value="Pause" onclick="onPlayPressed()" id="playButton" />
 				<select onchange="onPaletteChange()" id="paletteSelect">
@@ -17,8 +19,6 @@
 				</select>
 			</div>
 		</div>
-                <div style="background-color: #eeeeee; padding: 8px;">
-                        <strong>hugo.min.js</strong> test code
                 </div>
 		<script>
 			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
@@ -27,7 +27,7 @@
 		</script>
 		<script async src='https://www.google-analytics.com/analytics.js'></script>
 		<script type="text/javascript">
-			var MAP_NUMBER = 0
+			var MAP_NUMBER = Math.round( Math.random() );
 			var playing = false;
 			var gameTimer;
 			var gameTicks = 0;
