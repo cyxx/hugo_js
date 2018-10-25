@@ -19,7 +19,6 @@
 				</select>
 			</div>
 		</div>
-                </div>
 		<script>
 			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 			ga('create','UA-100340326-2','auto');
@@ -27,83 +26,24 @@
 		</script>
 		<script async src='https://www.google-analytics.com/analytics.js'></script>
 		<script type="text/javascript">
-			var MAP_NUMBER = Math.round( Math.random() );
-			var playing = false;
-			var gameTimer;
-			var gameTicks = 0;
-			function doGameTick() {
-				if (gameTicks == 0) {
-					Module['_train_init']( MAP_NUMBER );
-				}
-				Module['_train_update']( );
-				gameTicks += 1;
-			}
-			function resumeGame( ) {
-				gameTicks = 0;
-				gameTimer = setInterval( doGameTick, 50 );
-				playing = true;
-				playButton.value = 'Pause';
-			}
-			function pauseGame( ) {
-				clearInterval( gameTimer );
-				playing = false;
-				playButton.value = 'Play';
-			}
 			function onPlayPressed() {
-				if ( playing ) {
-					pauseGame( );
-				} else {
-					resumeGame( );
-				}
+				var playing = Module['toggleGame']( );
+				playButton.value = playing ? 'Pause' : 'Play';
 			}
 			var paletteIndex = 0;
 			function onPaletteChange() {
 				var palette = paletteSelect.selectedIndex;
 				if (palette != paletteIndex) {
 					paletteIndex = palette;
-					keyboard_f1_pressed = true;
+					Module['togglePalette']( );
 				}
 			}
-			var Module = {
-				'print' : function( text ) {
-					console.log( text )
-				},
-				'setStatus' : function( status ) {
-					console.log( 'status=' + status )
-				},
-				'onRuntimeInitialized' : function( ) {
-					resumeGame( );
-				}
-			}
-			var keyboard_left_pressed = false;
-			var keyboard_right_pressed = false;
-			var keyboard_f1_pressed = false;
 			function onKeyDown( ev ) {
-				if ( ev.code == 'ArrowLeft' || ev.code == 'Digit4' ) {
-					keyboard_left_pressed = true;
-				} else if ( ev.code == 'ArrowRight' || ev.code == 'Digit6' ) {
-					keyboard_right_pressed = true;
-				} else if ( ev.code == 'KeyV' || ev.code == 'KeyE' ) {
-					keyboard_f1_pressed = true;
-				}
+				Module['onKeyDown']( ev );
 			}
 			window.addEventListener( 'keydown', onKeyDown );
 			function onMouseDown( ev ) {
-				var canvas = document.getElementById( 'canvas' );
-				var bbox = canvas.getBoundingClientRect( );
-				var x = ev.clientX - bbox.left;
-				var y = ev.clientY - bbox.top;
-				var margin = 96;
-				var w = 32;
-				var h = 23;
-				if ( y >= 45 - margin && y <= 45 + h + margin ) {
-					if ( x >= 96 - margin && x <= 96 + w ) {
-						keyboard_left_pressed = true;
-					}
-					if ( x >= 128 && x <= 128 + w + margin ) {
-						keyboard_right_pressed = true;
-					}
-				}
+				Module['onMouseDown']( ev );
 			}
 			window.addEventListener( 'mousedown', onMouseDown );
 		</script>
