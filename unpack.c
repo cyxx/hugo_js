@@ -56,11 +56,12 @@ static int read_bit() {
 	return _unpack.cflag;
 }
 
-static uint16_t rcl(uint16_t value) {
-	assert((value & 0x8000) == 0);
-	const int carry = _unpack.cflag;
-	_unpack.cflag = 0;
-	return (value << 1) | carry;
+static uint16_t read_bits(int count) {
+	uint16_t bits = 0;
+	for (int i = 0; i < count; ++i) {
+		bits = (bits << 1) | read_bit();
+	}
+	return bits;
 }
 
 static void next_code() {
@@ -80,12 +81,7 @@ static void next_code() {
 		_unpack.len = next_byte();
 		_unpack.idx = 3;
 	} else {
-		read_bit();
-		_unpack.len = rcl(_unpack.len);
-		read_bit();
-		_unpack.len = rcl(_unpack.len);
-		read_bit();
-		_unpack.len = rcl(_unpack.len);
+		_unpack.len = read_bits(3);
 		_unpack.len += 6;
 		_unpack.idx = 3;
 	}
@@ -147,7 +143,6 @@ int unpack(uint8_t *src, uint32_t size) {
 			}
 
 			next_code();
-			print_debug(DBG_UNPACK, "next code idx %d len %d offset (dst) %p (src) %p", _unpack.idx, _unpack.len, q - src, _unpack.src - _unpack.base);
 
 			// next literal bytes length
 			if (read_bit()) {
@@ -166,12 +161,7 @@ int unpack(uint8_t *src, uint32_t size) {
 				assert(_unpack.idx + 4 < UNPACK_CODES_SIZE);
 				count = _codes[4 + _unpack.idx];
 			}
-			code2 = 0;
-			for (int i = 0; i < count; ++i) {
-				read_bit();
-				code2 = rcl(code2);
-			}
-			code2 += code1;
+			code2 = read_bits(count) + code1;
 
 			// reference bytes offset
 			if (read_bit()) {
@@ -191,11 +181,7 @@ int unpack(uint8_t *src, uint32_t size) {
 				assert(_unpack.idx < UNPACK_DICTB_SIZE);
 				count = _unpack.dictb[_unpack.idx];
 			}
-			code1 = 0;
-			for (i = 0; i < count; ++i) {
-				read_bit();
-				code1 = rcl(code1);
-			}
+			code1 = read_bits(count);
 
 			// reference bytes
 			_unpack.idx = offset + 1 + code1;
@@ -203,7 +189,6 @@ int unpack(uint8_t *src, uint32_t size) {
 				*q = q[_unpack.idx];
 				--q;
 			}
-			_unpack.len = 0;
 		}
 	}
 	return _unpack.size;
